@@ -43,7 +43,7 @@ SNAPSHOT_URL = "https://hub.snapshot.org/graphql"
 # ==========================
 # ✅ CONFIG (edit here)
 # ==========================
-SPACES_FILE = "data/processed/selected_spaces_follower_knee.json"
+SPACES_FILE = "/home/carlo/data/summer_voters/selected_spaces_follower_knee.json"
 
 # ✅ Put outputs on D drive
 OUT_DIR = "/home/carlo/data/summer_voters/snapshot_votes_441"
