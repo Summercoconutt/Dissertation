@@ -1,0 +1,40 @@
+# Large CSV files
+data_expansion/TEST_uniswap_votes.csv
+data_expansion/data/processed/votes_441/
+data_expansion/data/processed/votes_441_per_space/
+DAO_Level_Metrics/snapshot_votes_with_timestamp_choice.csv
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Outputs and logs
+output.log
+*.log
+
+# Temporary files
+*.tmp
+*.temp

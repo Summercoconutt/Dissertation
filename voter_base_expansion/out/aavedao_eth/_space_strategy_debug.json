@@ -1,0 +1,87 @@
+{
+  "space": "aavedao.eth",
+  "token_contract": "0xc0259c59d9f980e3b5e2574cd78c9a9bc6a8e3fc",
+  "token_decimals": 18,
+  "token_start_block": null,
+  "flags": {
+    "has_erc20_balance": false,
+    "has_erc20_votes": false,
+    "has_delegation": false,
+    "has_lp_or_staking": false,
+    "has_multi_asset": true
+  },
+  "debug": {
+    "strategy_names": [
+      "contract-call",
+      "contract-call"
+    ],
+    "found_addresses": [
+      {
+        "name": "contract-call",
+        "addresses": [
+          "0xc0259c59d9f980e3b5e2574cd78c9a9bc6a8e3fc"
+        ],
+        "params": {
+          "args": [
+            "%{address}"
+          ],
+          "symbol": "AAVE in stkBPT",
+          "address": "0xC0259c59D9f980E3b5e2574cD78C9A9Bc6A8E3fc",
+          "decimals": 18,
+          "methodABI": {
+            "name": "balanceOf",
+            "type": "function",
+            "inputs": [
+              {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ],
+            "stateMutability": "view"
+          }
+        }
+      },
+      {
+        "name": "contract-call",
+        "addresses": [
+          "0xa198fac58e02a5c5f8f7e877895d50cfa9ad1e04"
+        ],
+        "params": {
+          "args": [
+            "%{address}"
+          ],
+          "symbol": "AAVE gov V3 Voting Power",
+          "address": "0xa198Fac58E02A5C5F8F7e877895d50cFa9ad1E04",
+          "decimals": 18,
+          "methodABI": {
+            "name": "getFullVotingPower",
+            "type": "function",
+            "inputs": [
+              {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ],
+            "stateMutability": "view"
+          }
+        }
+      }
+    ]
+  }
+}

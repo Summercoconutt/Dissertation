@@ -1,0 +1,270 @@
+You are helping me implement a research-safe DAO participation metrics pipeline.
+
+Please read this carefully and follow the methodology exactly.
+
+==================================================
+RESEARCH GOAL
+==================================================
+
+I want to compute proposal-level and DAO-level participation metrics for Snapshot governance data.
+
+The key correction is:
+
+I do NOT want to force address-based eligibility reconstruction for all strategies.
+
+Instead, I want two participation metrics:
+
+1. Voting-power participation rate (MAIN METRIC, universally supported)
+2. Address-based participation rate (OPTIONAL, only for simple strategies)
+
+==================================================
+METHODOLOGY
+==================================================
+
+For each Snapshot proposal:
+
+A. Voting-power participation rate (main metric)
+This should be defined as:
+
+vp_participation_rate =
+    total voting power used in the proposal / total voting power available for the proposal
+
+In practice:
+- total voting power used = sum of all vote.vp from Snapshot votes
+- total voting power available = proposal.scores_total from Snapshot proposal data
+
+This metric should work for ALL Snapshot strategies, including:
+- simple ERC20 balance strategies
+- delegation-based strategies
+- staking-based strategies
+- wrapper / LP / NFT / multi-strategy spaces
+
+Reason:
+Snapshot already computes the relevant voting power according to the configured voting strategies.
+I do not want to reconstruct complex eligibility from scratch when Snapshot already provides the voting power outcome.
+
+Important:
+- "Abstain" is an explicit participation choice and should count as participation.
+- Do NOT confuse Abstain with non-participation.
+- Therefore all Snapshot votes (For / Against / Abstain / etc.) count toward used voting power.
+
+B. Address-based participation rate (optional / partial support)
+This should be defined as:
+
+address_participation_rate =
+    number of unique actual voters / number of unique eligible voters
+
+Where:
+- actual voters = unique addresses in Snapshot votes
+- eligible voters = unique addresses with positive voting power at the proposal snapshot block
+
+However:
+This metric should only be computed if the voting strategy is simple enough to support reliable eligibility reconstruction.
+
+For v1:
+ONLY support address-based participation for the simplest case:
+- Ethereum mainnet
+- single ERC20 balance-based strategy
+- no delegation / no staking / no wrappers / no LP / no multi-strategy combinations
+
+For all other strategies:
+- DO NOT fake address-based participation
+- set address_participation_rate = null
+- set support_status = unsupported
+- include support_reason clearly
+
+==================================================
+IMPORTANT IMPLEMENTATION RULES
+==================================================
+
+Rule 1:
+The main metric is vp_participation_rate.
+This should be computed for all proposals.
+
+Rule 2:
+Do NOT mark complex strategy proposals as fully unsupported overall.
+They are still supported for vp_participation_rate.
+
+Rule 3:
+Only address-based participation reconstruction may be unsupported.
+
+Rule 4:
+Use proposal snapshot block only when eligibility reconstruction is attempted.
+Do NOT use proposal start-end block interval.
+
+Rule 5:
+Do NOT use any USD threshold (e.g. $100 worth of token) in the main implementation.
+No dust filtering by USD value in v1.
+
+Rule 6:
+Be transparent and audit-friendly.
+I want outputs that clearly show:
+- which metrics are universally available
+- which metrics are partially supported
+- why address reconstruction is unsupported when relevant
+
+==================================================
+DATA SOURCES
+==================================================
+
+Use Snapshot Hub GraphQL API to fetch:
+- proposals
+- votes
+- proposal snapshot block
+- proposal choices
+- proposal scores_total
+- proposal scores
+- space id
+- strategy metadata if available
+
+If necessary, fetch space details / strategies from Snapshot so that strategy types can be classified.
+
+Use Etherscan / chain-side logic ONLY for the simple supported address-based reconstruction case.
+
+Do NOT rely on Etherscan to define voting power for all strategies.
+
+==================================================
+WHAT I WANT THE CODE TO DO
+==================================================
+
+Build a Python pipeline that produces proposal-level and DAO-level participation metrics.
+
+STEP A — Fetch proposal data
+For each proposal:
+- proposal_id
+- space
+- snapshot_block
+- proposal type
+- choices
+- scores
+- scores_total
+
+STEP B — Fetch vote data
+For each proposal:
+- all votes
+- voter address
+- vote.vp
+- vote choice
+- unique voter count
+- total used voting power = sum(vote.vp)
+
+STEP C — Compute main participation metric
+For every proposal:
+- vp_used = sum(vote.vp)
+- vp_total = proposal.scores_total
+- vp_participation_rate = vp_used / vp_total
+Handle zero or missing total voting power carefully.
+
+STEP D — Detect strategy complexity
+For each space/proposal:
+- classify whether strategy is:
+  - simple_erc20_balance_mainnet
+  - complex_delegation
+  - complex_staking
+  - complex_wrapper
+  - complex_multi_strategy
+  - unsupported_unknown
+- You do not need to solve every complex strategy.
+You only need to classify them honestly.
+
+STEP E — Optional address-based participation
+Only if strategy is simple_erc20_balance_mainnet:
+- reconstruct eligible voter set at snapshot block
+- compute:
+  - n_actual_voters
+  - n_eligible_voters
+  - address_participation_rate
+
+For all other strategies:
+- n_eligible_voters = null
+- address_participation_rate = null
+- address_support_status = unsupported
+- address_support_reason = explanation
+
+STEP F — DAO-level aggregation
+Aggregate to space / DAO level:
+- mean_vp_participation_rate
+- median_vp_participation_rate
+- optionally weighted_mean_vp_participation_rate
+- mean_address_participation_rate (only over supported proposals)
+- n_proposals
+- n_address_supported
+- n_address_unsupported
+- address_support_ratio
+
+==================================================
+OUTPUT FILES
+==================================================
+
+Please generate code that writes at least these files:
+
+1. proposal_participation_metrics.csv
+Columns should include:
+- space
+- proposal_id
+- snapshot_block
+- proposal_type
+- choices
+- strategy_class
+- vp_used
+- vp_total
+- vp_participation_rate
+- n_actual_voters
+- n_eligible_voters
+- address_participation_rate
+- address_support_status
+- address_support_reason
+
+2. dao_participation_metrics.csv
+Columns should include:
+- space
+- n_proposals
+- mean_vp_participation_rate
+- median_vp_participation_rate
+- weighted_mean_vp_participation_rate
+- mean_address_participation_rate
+- n_address_supported
+- n_address_unsupported
+- address_support_ratio
+
+3. strategy_summary.csv
+Columns should include:
+- space
+- detected_strategies
+- strategy_class
+- address_reconstruction_supported
+- reconstruction_reason
+
+==================================================
+IMPLEMENTATION PREFERENCES
+==================================================
+
+Please generate clean Python code with:
+- modular functions
+- comments explaining assumptions
+- no fake outputs for unsupported address reconstruction
+- clear TODO markers for future extension
+- readable CSV outputs
+- safe handling of pagination for Snapshot votes
+
+==================================================
+FIRST VERSION SCOPE
+==================================================
+
+For v1:
+- Fully support vp_participation_rate for all proposals
+- Only partially support address-based participation for simple ERC20 balance strategy on Ethereum mainnet
+- Mark complex strategies honestly instead of failing the whole pipeline
+
+==================================================
+WHAT I WANT FROM YOU NOW
+==================================================
+
+Please generate the Python code for this pipeline.
+
+I want a correct research-safe implementation, not an overconfident shortcut.
+
+Most importantly:
+- Complex strategies should still produce vp_participation_rate
+- Only address-based participation may be null / unsupported
+- Do not incorrectly equate token holders with eligible voters for all Snapshot strategies

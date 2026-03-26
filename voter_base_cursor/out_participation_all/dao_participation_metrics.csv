@@ -1,0 +1,3 @@
+space,n_proposals,mean_vp_participation_rate,median_vp_participation_rate,weighted_mean_vp_participation_rate,mean_address_participation_rate,n_address_supported,n_address_unsupported,address_support_ratio
+aavedao.eth,3,1.0000000000000002,1.0000000000000002,1.0000000000000002,,0,3,0.0
+uniswapgovernance.eth,3,1.0,0.9999999999999997,0.9999999999999998,,0,3,0.0

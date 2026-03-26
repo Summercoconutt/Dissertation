@@ -1,0 +1,204 @@
+You are helping me implement a research methodology for DAO governance data analysis.
+
+Please read this very carefully and follow the logic exactly.
+
+========================
+RESEARCH GOAL
+========================
+
+I want to compute a DAO-level metric called average participation rate.
+
+The logic is:
+
+1. For each proposal, compute a proposal-level participation rate
+2. Then aggregate proposal-level participation rates to the DAO level (e.g. mean, median, weighted mean)
+
+The proposal-level participation rate should be defined as:
+
+participation_rate(proposal) =
+    number_of_actual_voters / number_of_eligible_voters
+
+Where:
+- number_of_actual_voters = unique addresses that actually cast a vote on Snapshot for that proposal
+- number_of_eligible_voters = unique addresses that had positive voting power for that proposal at the relevant Snapshot block
+
+Important:
+I do NOT want to confuse:
+- "Abstain" = an explicit vote choice by someone who participated
+with
+- "Did not vote" = an eligible voter who did not submit any vote
+
+So:
+- Snapshot votes = actual participation
+- Abstain is part of participation
+- non-participation must be inferred by comparing actual voters against eligible voters
+
+========================
+IMPORTANT METHODOLOGY CORRECTIONS
+========================
+
+Please follow these rules exactly:
+
+Rule 1:
+Do NOT use the proposal voting period (start block to end block) to define eligibility.
+Eligibility should be evaluated at the proposal’s Snapshot block only.
+
+Rule 2:
+Do NOT assume token holders = eligible voters.
+Snapshot voting power is strategy-driven, not always simple token balance.
+
+Rule 3:
+Do NOT assume Etherscan can directly return "all addresses with voting power at a block including delegation".
+That is NOT directly available.
+
+Rule 4:
+Eligibility must be reconstructed based on the Snapshot voting strategy / strategies configured for the space.
+
+Rule 5:
+The main definition of eligibility is:
+eligible voter = address with voting power > 0 at the proposal snapshot block
+
+Do NOT use a USD token-value threshold (e.g. $100) in the main definition.
+That can only be an optional robustness check later.
+
+========================
+WHAT I NEED THE CODE TO DO
+========================
+
+I want code that reconstructs proposal-level participation rates as correctly as possible.
+
+Please implement a pipeline with this structure:
+
+STEP A — Fetch proposal and vote data from Snapshot
+For each proposal:
+- proposal id
+- space id
+- snapshot block
+- proposal type
+- proposal choices
+- all votes
+- unique actual voters
+
+STEP B — Fetch the voting strategies for the space
+For each space, fetch its strategy / strategies from Snapshot
+I need to know how voting power is computed for that space.
+Examples may include:
+- erc20-balance-of
+- erc20-with-balance
+- delegation
+- erc20-votes
+- staking / wrapper / LP / NFT / multi-strategy variants
+
+STEP C — Reconstruct eligible voters
+The code should NOT blindly assume all spaces are the same.
+Instead:
+
+1. Detect whether the space uses a simple token-based strategy
+   Example: a plain ERC20 balance strategy on Ethereum mainnet
+
+2. If the strategy is simple enough, try to reconstruct an approximate eligible voter set at the proposal snapshot block
+
+3. If the strategy is delegation-based, staking-based, wrapper-based, LP-based, multi-strategy, or too complex,
+   mark the proposal / space as:
+   "eligibility reconstruction not yet fully supported"
+
+4. The code must be explicit about which proposals/spaces are:
+   - supported
+   - unsupported
+   - partially supported
+
+STEP D — Compute participation rate
+For each supported proposal:
+- actual_voters = count of unique voters from Snapshot votes
+- eligible_voters = count of unique addresses with voting power > 0
+- participation_rate = actual_voters / eligible_voters
+
+For unsupported proposals:
+- output NA / null for participation_rate
+- include a reason column explaining why
+
+STEP E — DAO-level aggregation
+For each DAO / space:
+- mean_participation_rate
+- median_participation_rate
+- optionally weighted_mean_participation_rate
+- n_supported_proposals
+- n_unsupported_proposals
+- support_ratio
+
+========================
+VERY IMPORTANT IMPLEMENTATION PREFERENCES
+========================
+
+I do NOT want overconfident code that pretends to solve eligibility for every space.
+I want honest, modular, research-safe code.
+
+Please design the code so that:
+- strategy parsing is separated from participation computation
+- unsupported strategies are flagged clearly
+- outputs are audit-friendly
+- assumptions are transparent
+
+========================
+EXPECTED OUTPUT FILES
+========================
+
+Please write code that outputs at least:
+
+1. proposal_participation_metrics.csv
+Columns like:
+- space
+- proposal_id
+- snapshot_block
+- strategy_type
+- support_status
+- support_reason
+- n_actual_voters
+- n_eligible_voters
+- participation_rate
+
+2. dao_participation_metrics.csv
+Columns like:
+- space
+- mean_participation_rate
+- median_participation_rate
+- weighted_mean_participation_rate
+- n_supported_proposals
+- n_unsupported_proposals
+- support_ratio
+
+3. strategy_summary.csv
+Columns like:
+- space
+- detected_strategies
+- reconstruction_supported
+- reconstruction_reason
+
+========================
+FIRST IMPLEMENTATION SCOPE
+========================
+
+For the first version, only fully support the simplest case:
+- spaces using a simple ERC20 token-balance-based strategy on Ethereum mainnet
+
+For all other strategy types:
+- do NOT fake the result
+- clearly mark them unsupported
+
+========================
+WHAT I WANT FROM YOU NOW
+========================
+
+Please generate Python code for a clean first version of this pipeline.
+
+Requirements:
+- modular structure
+- readable functions
+- comments explaining assumptions
+- clear TODO markers for future support of complex strategies
+- use Snapshot GraphQL / API where appropriate
+- use Etherscan or chain data only for the simple supported strategy case
+- make sure the code distinguishes actual voters from eligible voters
+
+Most importantly:
+I want the code to reflect this methodology faithfully, not a shortcut version that incorrectly equates token holders with voting power for all spaces.

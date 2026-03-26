@@ -1,0 +1,201 @@
+You are helping me build a production-level Python pipeline to compute DAO participation metrics using Snapshot voting data.
+
+## Context
+
+I have data from Snapshot located at D:\snapshot_votes_441\spaces
+
+- space (DAO name) as a folder
+- proposal_id as each file 
+- within each proposal file there is voter (wallet address) and vp (voting power of that voter)
+
+Each row represents one vote.
+
+
+
+## Objective
+
+Compute TWO types of participation metrics:
+
+### 1) Voter-based participation (count-based)
+For each proposal:
+
+participation_count =
+    number of unique voters in proposal
+    -----------------------------------
+    total number of active voters in DAO
+
+Where:
+- active voters = all unique voters who participated in ANY proposal in that DAO
+
+---
+
+### 2) Voting power–based participation (capital-based)
+For each proposal:
+
+participation_vp =
+    total voting power used in proposal
+    -----------------------------------
+    maximum voting power observed across all proposals in that DAO
+
+Where:
+- total voting power = sum of vp in that proposal
+- max voting power = max(sum(vp)) across proposals within the same DAO
+
+---
+
+## Required Steps
+
+### Step 1 — Load data
+- Read from CSV or Parquet file
+- Ensure correct dtypes
+- Drop rows where vp is null
+- Ensure vp is numeric
+
+---
+
+### Step 2 — Compute proposal-level stats
+
+Group by (space, proposal_id) and compute:
+
+- n_voters = number of unique voters
+- sum_actual_vp = sum of vp
+
+---
+
+### Step 3 — Compute DAO-level stats
+
+For each DAO (space):
+
+- active_voters = number of unique voters across all proposals
+- max_vp = maximum sum_actual_vp across proposals
+
+IMPORTANT:
+- Also compute robust_max_vp = 95th percentile of sum_actual_vp (to avoid outliers)
+
+---
+
+### Step 4 — Merge stats
+
+For each proposal, attach:
+- active_voters
+- max_vp
+- robust_max_vp
+
+---
+
+### Step 5 — Compute participation metrics
+
+Compute:
+
+participation_count = n_voters / active_voters
+
+participation_vp = sum_actual_vp / max_vp
+
+robust_participation_vp = sum_actual_vp / robust_max_vp
+
+---
+
+### Step 6 — Handle edge cases
+
+- If active_voters == 0 → set participation_count = None
+- If max_vp == 0 → set participation_vp = None
+- If robust_max_vp == 0 → set robust_participation_vp = None
+- Clip participation values to [0, 1.5] (allow slight overflow but flag it)
+
+Add flag columns:
+- vp_gt_1_flag = participation_vp > 1
+- robust_vp_gt_1_flag = robust_participation_vp > 1
+
+---
+
+### Step 7 — DAO-level aggregation (for clustering)
+
+For each DAO compute:
+
+- mean_participation_count
+- std_participation_count
+- mean_participation_vp
+- std_participation_vp
+- mean_robust_participation_vp
+- std_robust_participation_vp
+- mean_n_voters
+- mean_sum_vp
+- n_proposals
+
+---
+
+### Step 8 — Output
+
+Save two files:
+
+1) proposal_level_participation.csv
+Columns:
+- space
+- proposal_id
+- n_voters
+- sum_actual_vp
+- active_voters
+- max_vp
+- robust_max_vp
+- participation_count
+- participation_vp
+- robust_participation_vp
+- vp_gt_1_flag
+- robust_vp_gt_1_flag
+
+2) dao_level_participation_summary.csv
+Columns:
+- space
+- mean_participation_count
+- std_participation_count
+- mean_participation_vp
+- std_participation_vp
+- mean_robust_participation_vp
+- std_robust_participation_vp
+- mean_n_voters
+- mean_sum_vp
+- n_proposals
+
+---
+
+## Technical Requirements
+
+- Use Python
+- Use pandas (or polars if more efficient)
+- Avoid loops (use vectorized groupby operations)
+- Memory efficient (dataset can be large)
+- Modular functions:
+    - load_data()
+    - compute_proposal_stats()
+    - compute_dao_stats()
+    - merge_stats()
+    - compute_participation_metrics()
+    - aggregate_dao_level()
+    - save_outputs()
+
+---
+
+## Diagnostics
+
+Print:
+
+- total number of DAOs
+- total number of proposals
+- distribution of participation_count
+- distribution of participation_vp
+- top 10 DAOs by participation_count
+- bottom 10 DAOs by participation_count
+
+---
+
+## Notes
+
+- Do NOT use any external APIs
+- Do NOT attempt to reconstruct eligible voters
+- This is a proxy-based participation framework
+
+---
+
+## Deliverable
+
+Generate clean, well-structured, production-ready Python code implementing all steps above.

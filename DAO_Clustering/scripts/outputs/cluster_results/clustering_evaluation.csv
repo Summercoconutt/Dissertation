@@ -1,0 +1,3 @@
+method,k,silhouette,davies_bouldin
+kmeans,2,,
+hierarchical,2,,

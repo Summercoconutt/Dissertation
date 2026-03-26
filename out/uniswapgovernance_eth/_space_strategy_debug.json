@@ -1,0 +1,31 @@
+{
+  "space": "uniswapgovernance.eth",
+  "token_contract": "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
+  "token_decimals": 18,
+  "token_start_block": null,
+  "flags": {
+    "has_erc20_balance": false,
+    "has_erc20_votes": false,
+    "has_delegation": false,
+    "has_lp_or_staking": false,
+    "has_multi_asset": false
+  },
+  "debug": {
+    "strategy_names": [
+      "uni"
+    ],
+    "found_addresses": [
+      {
+        "name": "uni",
+        "addresses": [
+          "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984"
+        ],
+        "params": {
+          "symbol": "UNI",
+          "address": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+          "decimals": 18
+        }
+      }
+    ]
+  }
+}

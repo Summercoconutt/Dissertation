@@ -1,0 +1,6 @@
+space,n_proposals,mean_vp_participation_rate,median_vp_participation_rate,weighted_mean_vp_participation_rate,mean_address_participation_rate,n_address_supported,n_address_unsupported,address_support_ratio
+balancer.eth,10,1.0,1.0,1.0,,0,10,0.0
+curve.eth,10,1.0,1.0,0.9999999999999998,,0,10,0.0
+lido-snapshot.eth,10,1.0000000000000004,1.0000000000000004,1.0000000000000004,,0,10,0.0
+sushigov.eth,10,1.0,1.0,1.0000000000000002,,0,10,0.0
+uniswapgovernance.eth,10,1.0,1.0,1.0000000000000002,,0,10,0.0
