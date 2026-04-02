@@ -1,0 +1,4 @@
+,gini_voting_power,hhi_voting_power,whale_ratio_top1pct
+gini_voting_power,1.0,-0.24765061580155193,-0.4642288062547246
+hhi_voting_power,-0.24765061580155193,1.0,0.5667818074228878
+whale_ratio_top1pct,-0.4642288062547246,0.5667818074228878,1.0

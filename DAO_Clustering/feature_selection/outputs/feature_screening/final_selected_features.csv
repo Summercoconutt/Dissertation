@@ -1,0 +1,13 @@
+feature
+log_n_unique_voters
+mean_robust_participation_vp
+std_robust_participation_vp
+gini_voting_power
+whale_ratio_top1pct
+proposal_frequency_per_30d
+repeat_voter_rate
+z_rep_pct_for_votes
+z_rep_pct_against_votes
+z_rep_pct_abstain_votes
+z_rep_choice_entropy
+z_rep_pct_aligned_with_majority

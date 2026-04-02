@@ -1,0 +1,207 @@
+I want you to build a FULL feature preprocessing + correlation-based feature selection pipeline for DAO clustering.
+
+This is for research use, so preprocessing must be rigorous and reproducible.
+
+========================
+STEP 0 — LOAD DATA
+========================
+- Load Excel file: dao_feature_table.xlsx located at C:\Users\DELL\Desktop\Honda_doc\draft paper
+- Keep "space" as identifier
+- All other columns are candidate features
+
+========================
+STEP 1 — BASIC CLEANING
+========================
+1. Separate:
+   - df_id = ["space"]
+   - df_numeric = all numeric columns
+
+2. Handle missing values:
+   - Print missing value count per column
+   - If missing < 5% → fill with median
+   - If missing >= 5% → drop the column and log it
+
+3. Remove constant columns (variance = 0)
+
+========================
+STEP 2 — FEATURE TYPE HANDLING
+========================
+
+2.1 Identify feature groups manually in code:
+
+A. Scale features:
+- n_unique_voters
+- total_votes
+- n_proposals
+- mean_n_voters
+- mean_sum_vp
+- n_voters_in_dao
+
+B. Participation:
+- voter_turnout_proxy
+- avg_voters_per_proposal
+- median_voters_per_proposal
+- mean_participation_count
+- std_participation_count
+- mean_participation_vp
+- std_participation_vp
+- mean_robust_participation_vp
+- std_robust_participation_vp
+
+C. Governance:
+- gini_voting_power
+- hhi_voting_power
+- whale_ratio_top1pct
+
+D. Activity:
+- proposal_frequency_per_30d
+- repeat_voter_rate
+
+E. Representative voter (raw)
+F. Representative voter (z)
+
+2.2 Handle duplicated representations:
+- Prefer robust participation over non-robust
+- Prefer z_rep_* over raw_rep_* (unless missing)
+- Do NOT keep both raw and z versions of same concept
+
+========================
+STEP 3 — LOG TRANSFORM
+========================
+Apply log1p to skewed scale features:
+
+- n_unique_voters
+- total_votes
+- n_proposals
+- mean_sum_vp
+- mean_n_voters
+- n_voters_in_dao
+
+Create new columns: log_*
+
+Prefer log versions in later analysis.
+
+========================
+STEP 4 — OUTLIER HANDLING
+========================
+
+Use winsorization (recommended for finance-style data):
+
+For each numeric column:
+- Clip values at 1st and 99th percentile
+
+OR alternatively:
+- Use IQR method (Q1 - 1.5*IQR, Q3 + 1.5*IQR)
+
+Log which columns were affected.
+
+========================
+STEP 5 — SCALING (IMPORTANT)
+========================
+
+Use RobustScaler (not StandardScaler):
+
+Reason:
+- DAO data is heavy-tailed
+- more stable for clustering
+
+Store:
+- df_scaled
+
+========================
+STEP 6 — CORRELATION MATRIX
+========================
+
+1. Compute Pearson correlation
+2. Save matrix to CSV
+3. Plot heatmap
+
+========================
+STEP 7 — HIGH CORRELATION FILTER
+========================
+
+Threshold: |corr| > 0.85
+
+- Extract pairs
+- Save as CSV
+- Automatically mark redundant features
+
+========================
+STEP 8 — GROUP-WISE ANALYSIS
+========================
+
+For each feature group:
+- Compute within-group correlation
+- Print summary
+
+Goal:
+- Identify redundancy inside each conceptual block
+
+========================
+STEP 9 — BUILD FINAL FEATURE SET
+========================
+
+Selection principles:
+
+1. Scale:
+   → keep ONLY 1–2 log variables
+
+2. Participation:
+   → keep robust version (mean + std)
+
+3. Governance:
+   → keep gini OR hhi (not both)
+   → keep whale_ratio_top1pct if adds value
+
+4. Activity:
+   → keep both features
+
+5. Representative voter:
+   → prioritize behavioural variables:
+      - pct_for
+      - pct_against
+      - pct_abstain
+      - entropy
+      - alignment_with_majority
+   → use z_rep_* version ONLY
+
+6. Remove:
+   → redundant features
+   → highly correlated duplicates
+   → mixed representations
+
+========================
+STEP 10 — FINAL OUTPUT
+========================
+
+Save:
+
+- full correlation matrix
+- high correlation pairs
+- dropped features
+- final selected features
+- reduced correlation heatmap
+
+========================
+STEP 11 — REPORT
+========================
+
+Print summary:
+
+- original feature count
+- removed features
+- final feature count
+- final feature names
+
+Also print a short interpretation:
+- what dimensions are captured (scale, behaviour, governance, etc.)
+
+========================
+REQUIREMENTS
+========================
+
+- Clean modular Python code
+- Use pandas, numpy, seaborn, matplotlib, sklearn
+- Use functions
+- Save outputs to ./outputs/feature_screening/
+- Add comments explaining each step

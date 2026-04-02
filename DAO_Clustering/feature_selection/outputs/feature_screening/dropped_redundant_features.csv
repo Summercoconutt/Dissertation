@@ -1,0 +1,5 @@
+feature
+log_n_voters_in_dao
+log_total_votes
+mean_participation_count
+median_voters_per_proposal
