@@ -1,0 +1,33 @@
+Voter_Clustering server run notes
+=================================
+
+1) Install dependencies
+   pip install -r requirements.txt
+   # optional
+   pip install hdbscan
+
+2) Configure data paths (recommended via environment variables)
+   Linux/macOS:
+     export VOTER_SNAPSHOT_ROOT=/path/to/snapshot_votes_data/snapshot_votes_441/spaces
+     export VOTER_DAO_CLUSTERS_CSV=/path/to/cluster_assignments.csv
+
+   Windows PowerShell:
+     $env:VOTER_SNAPSHOT_ROOT="D:\snapshot_votes_data\snapshot_votes_441\spaces"
+     $env:VOTER_DAO_CLUSTERS_CSV="D:\111111\Dissertation\DAO_Clustering_cleaning\outputs\cluster_results\no_outliers\cluster_assignments.csv"
+
+3) Run pipeline
+   python run_pipeline.py
+
+4) Main outputs
+   data/processed/master_votes.parquet
+   data/processed/master_votes_with_dao_cluster.parquet
+   outputs/voter_clustering/voter_space_features.csv
+   outputs/voter_clustering/voter_space_features_filtered.csv
+   outputs/voter_clustering/voter_cluster_assignments.csv
+   outputs/voter_clustering/cluster_summary_statistics.csv
+   outputs/voter_clustering/figures/
+
+5) Scaling controls
+   - Edit src/voter_clustering/config.py:
+     MAX_PARQUET_FILES = None  # full run
+     MAX_PARQUET_FILES = 2000  # smoke test
