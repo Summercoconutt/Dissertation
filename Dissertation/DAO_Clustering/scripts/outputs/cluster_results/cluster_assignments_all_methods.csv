@@ -1,0 +1,5 @@
+space,method,k,cluster
+ens.eth,kmeans,2,0
+uniswapgovernance.eth,kmeans,2,1
+ens.eth,hierarchical,2,1
+uniswapgovernance.eth,hierarchical,2,0

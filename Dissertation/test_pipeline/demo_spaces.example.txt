@@ -1,0 +1,5 @@
+# One Snapshot space folder name per line (must match master_votes column "space").
+# Copy to demo_spaces.txt and edit, or omit demo_spaces.txt to auto-pick DAOs.
+
+snapshot.dcl.eth
+yam.eth

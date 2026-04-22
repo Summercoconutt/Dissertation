@@ -1,0 +1,3 @@
+space,detected_strategies,reconstruction_supported,reconstruction_reason,token_address_if_simple
+aavedao.eth,contract-call,False,complex or multi-strategy configuration; eligibility reconstruction not implemented in v1,
+uniswapgovernance.eth,uni,False,complex or multi-strategy configuration; eligibility reconstruction not implemented in v1,

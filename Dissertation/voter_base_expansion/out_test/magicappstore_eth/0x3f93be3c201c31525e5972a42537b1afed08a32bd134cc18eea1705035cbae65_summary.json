@@ -1,0 +1,32 @@
+{
+  "space": "magicappstore.eth",
+  "proposal_id": "0x3f93be3c201c31525e5972a42537b1afed08a32bd134cc18eea1705035cbae65",
+  "snapshot_block": 67007486,
+  "n_candidates_scored": 257,
+  "n_voters": 257,
+  "n_layer1_holders": 0,
+  "n_layer2_vp_holders": 257,
+  "score_api_error": "Score API request failed after 6 attempts (last_status=500, last_text='{\"jsonrpc\":\"2.0\",\"error\":{\"code\":500,\"message\":\"unauthorized\",\"data\":\"something wrong with the strategies\"},\"id\":null}'): Retryable Score API HTTP 500: {\"jsonrpc\":\"2.0\",\"error\":{\"code\":500,\"message\":\"unauthorized\",\"data\":\"something wrong with the strategies\"},\"id\":null}",
+  "local_score_used": true,
+  "local_score_warnings": [],
+  "turnout_unweighted_layer1": null,
+  "turnout_unweighted_layer2": 1.0,
+  "turnout_weighted_vp": null,
+  "voters_vp_sum": 0.0,
+  "eligible_vp_sum": 0.0,
+  "tau_balance_token": 0.0,
+  "tau_vp_token": 0.0,
+  "token_contract": "",
+  "token_start_block": null,
+  "token_decimals": 18,
+  "flags": {
+    "has_erc20_balance": false,
+    "has_erc20_votes": false,
+    "has_delegation": false,
+    "has_lp_or_staking": false,
+    "has_multi_asset": false
+  },
+  "vp_top1_share": 0.0,
+  "vp_top10_share": 0.0,
+  "vp_top100_share": 0.0
+}

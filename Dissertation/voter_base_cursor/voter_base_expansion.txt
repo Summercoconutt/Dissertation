@@ -1,0 +1,56 @@
+You are my coding assistant in Cursor. Please implement “Task 4 — Eligible voter sanity check” for Snapshot proposals.
+
+Context / Goal
+- My supervisor said: “if all the addresses from snapshot are in the list from etherscan, then we're fine”.
+- I want to validate for a given Snapshot proposal:
+  (A) snapshot_voters = all addresses that actually voted on that proposal (from Snapshot Hub GraphQL)
+  (B) token_holders_at_snapshot_block = all addresses with positive balance of the governance ERC20 token at the proposal’s snapshot block (reconstructed via Etherscan API)
+  Then check: snapshot_voters ⊆ token_holders_at_snapshot_block
+  If any voter is missing, output them to a file and print a diagnostic message (could be due to staking/delegation/other strategy or wrong token/network).
+
+Environment variables (must be used)
+- RPC_URL="https://eth-mainnet.g.alchemy.com/v2/vgQsXVBO-x0yovmu2wD1t"  (Alchemy mainnet RPC; optional in this script but keep it)
+- ETHERSCAN_API_KEY="UUW322PB6Y29J64K5EF43WQ7WT6I5CYI75"
+
+Implementation requirements
+1) Create a single Python script: snapshot_voter_sanity_check.py
+2) Inputs via CLI args:
+   --proposal_id (Snapshot proposal id, e.g. 0x...)
+   --token (governance token contract address, 0x...)
+   Optional:
+   --page_size (default 10000)
+   --sleep (default 0.25 seconds)
+   --max_pages (default 2000)
+3) Step-by-step logic:
+   - Fetch proposal snapshot block from Snapshot Hub GraphQL:
+     query proposal(id) { snapshot, space { id }, type, choices }
+   - Fetch ALL votes for that proposal from Snapshot GraphQL (paginate with first/skip=1000) and collect unique voters (lowercase).
+   - Use Etherscan API to reconstruct token balances at snapshot block using ERC20 transfer events:
+     GET https://api.etherscan.io/api?module=account&action=tokentx&contractaddress=...&startblock=0&endblock=<snapshot_block>&page=...&offset=...&sort=asc&apikey=...
+     For each transfer:
+       balances[from] -= value (ignore mint from 0x0)
+       balances[to] += value (ignore burn to 0x0)
+     holders = addresses with balance > 0
+   - Sanity check: missing = snapshot_voters - holders
+   - If missing is empty => PASS
+     else => FAIL and write missing addresses to missing_snapshot_voters.txt
+   - Print summary stats: n_snapshot_voters, n_holders, overlap_ratio, and first 10 missing.
+4) Robustness:
+   - Handle Snapshot GraphQL errors
+   - Handle Etherscan “No transactions found”
+   - Rate limit: sleep between pages; stop when empty page returned
+   - Use timeouts and raise informative exceptions
+5) Output files:
+   - missing_snapshot_voters.txt if FAIL
+   - (optional) a JSON or CSV summary is fine but not required
+6) Add a minimal README comment block at top with example usage commands.
+
+Nice-to-have diagnostics
+- If missing voters exist, print likely reasons:
+  - snapshot strategy not pure token balance (delegation/staking wrapper/LP token)
+  - wrong token address
+  - proposal might be on L2 not Ethereum mainnet
+  - snapshot strategies pulling VP from another source
+- Keep code clean, typed hints optional.
+
+Please write the complete code for snapshot_voter_sanity_check.py accordingly.

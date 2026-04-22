@@ -1,0 +1,6 @@
+space,detected_strategies,strategy_class,address_reconstruction_supported,reconstruction_reason,token_address_if_simple
+uniswapgovernance.eth,uni,unsupported_unknown,False,single strategy 'uni' not recognized as simple ERC20; address-based eligibility unsupported,
+balancer.eth,"delegation-with-cap,erc20-balance-of",complex_delegation,False,multi-strategy configuration including delegation/votes-like components,
+curve.eth,erc20-balance-of,simple_erc20_balance_mainnet,True,address-based eligibility supported for simple ERC20 balance on mainnet,0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2
+sushigov.eth,erc20-balance-of,simple_erc20_balance_mainnet,True,address-based eligibility supported for simple ERC20 balance on mainnet,0x62d11bc0652e9D9B66ac0a4c419950eEb9cFadA6
+lido-snapshot.eth,"erc20-balance-of,erc20-balance-of-delegation",complex_delegation,False,multi-strategy configuration including delegation/votes-like components,

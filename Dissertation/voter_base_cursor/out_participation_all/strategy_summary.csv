@@ -1,0 +1,3 @@
+space,detected_strategies,strategy_class,address_reconstruction_supported,reconstruction_reason,token_address_if_simple
+aavedao.eth,contract-call,complex_multi_strategy,False,multi-strategy configuration; simple ERC20 eligibility not guaranteed,
+uniswapgovernance.eth,uni,unsupported_unknown,False,single strategy 'uni' not recognized as simple ERC20; address-based eligibility unsupported,

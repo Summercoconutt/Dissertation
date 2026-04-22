@@ -1,0 +1,28 @@
+{
+  "space": "magicappstore.eth",
+  "token_contract": null,
+  "token_decimals": 18,
+  "token_start_block": null,
+  "flags": {
+    "has_erc20_balance": false,
+    "has_erc20_votes": false,
+    "has_delegation": false,
+    "has_lp_or_staking": false,
+    "has_multi_asset": false
+  },
+  "debug": {
+    "strategy_names": [
+      "api-v2"
+    ],
+    "found_addresses": [
+      {
+        "name": "api-v2",
+        "addresses": [],
+        "params": {
+          "url": "https://snap-strat.magicsquare.io/check",
+          "type": "api-post"
+        }
+      }
+    ]
+  }
+}

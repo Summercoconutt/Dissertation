@@ -1,0 +1,7 @@
+space,proposal_id,snapshot_block,strategy_types,support_status,support_reason,n_actual_voters,n_eligible_voters,participation_rate
+aavedao.eth,0xe1f47bd04001269432d2e74e76b79747e1458e90b0e3b2cdee7be6495d96e056,24634861,contract-call,unsupported,complex or multi-strategy configuration; eligibility reconstruction not implemented in v1,0,,
+aavedao.eth,0x44d4562d2c0800343a791d42dadc9b025a541f69cbce69e64af5de26fb35f74b,24627710,contract-call,unsupported,complex or multi-strategy configuration; eligibility reconstruction not implemented in v1,3,,
+aavedao.eth,0xe76461b0936fc892904c1696066b9fa3688e1042078d9c9f06c1a937736a100e,24598478,contract-call,unsupported,complex or multi-strategy configuration; eligibility reconstruction not implemented in v1,127,,
+uniswapgovernance.eth,0x48e56786fd4ab27c5b089b45be1e914d4a3a0f9d067ac51eff0b26a882e49bde,24574837,uni,unsupported,complex or multi-strategy configuration; eligibility reconstruction not implemented in v1,133,,
+uniswapgovernance.eth,0x0242a914c60945d25873d2a98c6abd9f69cb889c6616e27f3c0ab759f9e8d783,24486094,uni,unsupported,complex or multi-strategy configuration; eligibility reconstruction not implemented in v1,150,,
+uniswapgovernance.eth,0x1086839122667be04c0eec25ba224fe4ac1b990383ddfe05b80ce201a06b4abf,23926765,uni,unsupported,complex or multi-strategy configuration; eligibility reconstruction not implemented in v1,449,,

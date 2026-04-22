@@ -1,0 +1,139 @@
+================================================================================
+CODE UPDATE REPORT — DAO Clustering & Validation Pipeline
+For supervisor review | Dissertation (DAO governance features)
+================================================================================
+Date: April 2026
+Repository area: Dissertation/DAO_Clustering_cleaning (primary) and Dissertation/DAO_Clustering (legacy pipeline)
+
+--------------------------------------------------------------------------------
+1. PURPOSE OF THIS NOTE
+--------------------------------------------------------------------------------
+
+This report documents (i) what was added or changed in the analysis code, (ii) where
+outputs are written, and (iii) a methodological finding that reconciled apparently
+conflicting numeric results between two clustering scripts. It is intended to support
+discussion of reproducibility and thesis reporting strategy.
+
+--------------------------------------------------------------------------------
+2. PRIMARY SCRIPT: clustering_validation_pipeline.py
+--------------------------------------------------------------------------------
+
+Location:
+  Dissertation/DAO_Clustering_cleaning/clustering_validation_pipeline.py
+
+Role:
+  Research-oriented **validation** pipeline: it does not assume clusters exist; it
+  reports diagnostics (distributions, correlations, PCA, K-means over k, hierarchical
+  clustering, DBSCAN, column-permutation null benchmark, stability via repeated seeds).
+
+Key configuration (editable at top of file):
+  • INPUT_PATH — default Excel feature table (with fallback CSV under DAO_Clustering)
+  • FEATURE_COLUMNS — 12 governance / participation / representation features
+  • LOG1P_COLUMNS — includes proposal_frequency_per_30d
+  • Missing values: rows with NA in selected features are **dropped** (not imputed)
+  • Scaling: RobustScaler on the retained feature matrix
+  • K range: 2–6; detailed K-means outputs use k with **maximum silhouette** on that sample
+  • Two parallel tracks: **all** cleaned DAOs, and **no_outliers** after multivariate
+    outlier flagging (z-score / IQR rule)
+
+Main output directory:
+  Dissertation/DAO_Clustering_cleaning/outputs/clustering_validation/
+
+Deliverables include CSV metrics, PNG figures, Markdown/text summaries, cleaned datasets,
+outlier report, and (at run end) copies of selected tables to the folder root for quick
+reference.
+
+--------------------------------------------------------------------------------
+3. STEP-7 STYLE BUNDLE: outputs/cluster_results/
+--------------------------------------------------------------------------------
+
+To align with dissertation output expectations (heatmap, distributions, cluster
+assignments, PCA figures), the pipeline also synchronises a curated subfolder:
+
+  Dissertation/DAO_Clustering_cleaning/outputs/cluster_results/
+    all/
+    no_outliers/
+
+Each contains: correlation heatmap, feature_distributions/ histograms,
+cluster_assignments.csv, cluster_summary_statistics.csv, PCA scatter coloured by cluster,
+PCA eigenvector bar charts (PC1–PC3 loadings).
+
+--------------------------------------------------------------------------------
+4. SUPPLEMENTARY DOCUMENTATION (SAME FOLDER)
+--------------------------------------------------------------------------------
+
+Written for interpretation and meetings (filenames indicative):
+  • 博士级聚类结果分析报告.txt — detailed figure-by-figure guide (Chinese)
+  • supervisor_meeting_report_en.txt — English briefing on methods and cautious conclusions
+  • code_update_report_supervisor_en.txt — this file
+
+--------------------------------------------------------------------------------
+5. RECONCILIATION WITH DAO_Clustering/clustering_pipeline.py
+--------------------------------------------------------------------------------
+
+Issue:
+  clustering_evaluation_k2_to_k6.csv (DAO_Clustering) showed k=2 silhouette ≈ 0.97,
+  while clustering_validation (cleaning) showed ≈ 0.23 on the **same underlying
+  Excel table** — apparently contradictory.
+
+Investigation (reproducible on the same machine, same dao_feature_table.xlsx):
+  The gap is **not** due to loading a different file or a bug in silhouette computation.
+  It is driven primarily by one preprocessing difference:
+
+  • clustering_pipeline.py applies **median imputation** for missing values and does
+    **not** apply log1p to proposal_frequency_per_30d before RobustScaler.
+  • clustering_validation_pipeline.py applies **log1p** to proposal_frequency_per_30d
+    and **drops** rows with missing values (only 2 rows dropped in the current data).
+
+Ablation check:
+  Adding log1p while keeping median imputation and N=436 reduces silhouette to ≈ 0.23,
+  matching the cleaning pipeline. Dropping two rows without log1p leaves silhouette ≈ 0.97.
+  Conclusion: **log1p on proposal frequency is the dominant cause** of the metric shift;
+  sample size difference is negligible for this comparison.
+
+Implication for the thesis:
+  High silhouette in the old pipeline should not be read as “strong natural clusters”
+  without acknowledging the raw-scale, heavy-tailed proposal variable. The cleaning
+  pipeline’s transform is more conservative for distance-based clustering.
+
+Optional follow-up (not yet committed as default):
+  Align clustering_pipeline.py with the same log1p rule (and optionally the same missing-
+  value policy) so both scripts become directly comparable for appendix tables.
+
+--------------------------------------------------------------------------------
+6. INTERPRETIVE REMINDERS (FOR THE WRITE-UP)
+--------------------------------------------------------------------------------
+
+• Silhouette and null-benchmark results in the validation folder support a **cautious**
+  narrative: exploratory partitions and descriptive cluster profiles, not proof of
+  discrete latent “types.”
+• **all** vs **no_outliers** runs can select different optimal k (e.g. k=2 vs k=4) under
+  maximum-silhouette rule — report both as sensitivity analysis.
+• Automated Markdown interpretation files may contain generic phrasing; substantive
+  conclusions should be reviewed against the numeric tables and figures.
+
+--------------------------------------------------------------------------------
+7. HOW TO REPRODUCE
+--------------------------------------------------------------------------------
+
+From a terminal:
+  cd Dissertation/DAO_Clustering_cleaning
+  python clustering_validation_pipeline.py
+
+Ensure INPUT_PATH points to the current feature table. Optional: install hdbscan for
+optional density-clustering output (otherwise skipped with a warning).
+
+--------------------------------------------------------------------------------
+8. SUMMARY FOR THE SUPERVISOR
+--------------------------------------------------------------------------------
+
+1. A full validation-oriented clustering pipeline was implemented with documented
+   outputs and a curated cluster_results bundle for figures and assignments.
+2. Discrepancies between two project folders were traced to **preprocessing**, chiefly
+   **log1p on proposal frequency**, not data file mismatch.
+3. Documentation and bilingual briefing notes were added under outputs/clustering_validation
+   to support interpretation and supervision meetings.
+
+================================================================================
+END OF REPORT
+================================================================================

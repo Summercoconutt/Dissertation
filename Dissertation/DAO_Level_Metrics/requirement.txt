@@ -1,0 +1,57 @@
+I want to build a DAO-level metrics dataset for ~440 Snapshot spaces.
+
+Input data:
+- proposal-level dataset (space, proposal_id, timestamp, voters, eligible_voters)
+- voter-level dataset (proposal_id, voter_address, voting_power)
+- strategy configuration per proposal
+
+Goal:
+Compute DAO-level aggregated governance metrics.
+
+Each row should represent one DAO (space).
+
+Metrics to compute include:
+
+1. Governance activity
+- n_proposals
+- proposal_per_month
+- active_days
+
+2. Voter scale
+- total_unique_voters
+- avg_voters_per_proposal
+- median_voters_per_proposal
+
+3. Eligible voters
+- avg_eligible_voters
+- median_eligible_voters
+
+4. Participation
+- avg_participation_rate
+- median_participation_rate
+- std_participation_rate
+- p25_participation_rate
+- p75_participation_rate
+
+5. Voter stability
+- repeat_voter_ratio
+- heavy_voter_ratio
+- avg_votes_per_voter
+
+6. Voter overlap
+- mean_voter_overlap
+- median_voter_overlap
+
+7. Voting power concentration
+- avg_top10_vp_share
+- avg_top5_vp_share
+- avg_top1_vp_share
+- avg_gini_voting_power
+
+8. Governance design
+- n_unique_strategies
+- avg_strategies_per_proposal
+- multi_strategy_ratio
+
+Output:
+dao_metrics_raw.csv

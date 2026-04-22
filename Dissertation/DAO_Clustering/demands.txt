@@ -1,0 +1,168 @@
+I am building a DAO-level clustering pipeline based on Snapshot governance data. 
+Please help me design and implement a clean, modular, and scalable Python codebase.
+
+Project goal:
+Construct a DAO-level feature table (one row per DAO, multiple governance-related metrics), 
+perform exploratory data analysis and feature screening, and then apply clustering algorithms 
+to identify meaningful DAO archetypes.
+
+========================
+STEP 1 — PROJECT STRUCTURE
+========================
+First, organize the project into a clear structure:
+
+- data/
+    - raw/
+    - interim/
+    - processed/
+- scripts/
+    - 01_load_data.py
+    - 02_compute_metrics.py
+    - 03_build_dao_feature_table.py
+    - 04_eda_feature_screening.py
+    - 05_clustering.py
+    - utils.py
+- outputs/
+    - tables/
+    - figures/
+    - cluster_results/
+
+All scripts should be runnable independently and also composable as a pipeline.
+
+========================
+STEP 2 — DATA LOADING
+========================
+Input data:
+- Snapshot voting data (already collected, likely in parquet format), location:D:\snapshot_votes_441\spaces
+- Each record includes:
+    - space (DAO name)
+    - proposal_id
+    - voter
+    - choice (for / against / abstain)
+    - voting_power
+    - timestamp
+
+Implement:
+- Efficient loading using pandas or polars (prefer polars if large data)
+- Memory-safe handling (chunking if needed)
+
+========================
+STEP 3 — DAO-LEVEL METRICS
+========================
+For each DAO (space), compute a comprehensive set of governance metrics.
+
+Include at least these categories:
+
+1. Size & Activity
+- n_proposals
+- n_unique_voters
+- total_votes
+- avg_voters_per_proposal
+- median_voters_per_proposal
+
+2. Participation & Engagement.code:C:\Users\DELL\Desktop\111111\Dissertation\DAO_Level_Metrics\participation_rate\participation_rate_pipeline.py
+- avg_participation_rate (if available)
+- voter turnout proxy (e.g. voters per proposal normalized)
+
+3. Representative Voting Behavior C:\Users\DELL\Desktop\111111\Dissertation\Representative_Voter_DAO\dao_representative_voter_pipeline.py
+
+
+4. Concentration & Power
+- Gini coefficient of voting power
+- HHI index of voting power
+- whale_ratio (top X% voters share)
+
+5. Temporal Dynamics
+- proposal frequency (proposals per time unit)
+- voter retention / repeat voter rate
+
+Make sure:
+- All metrics are computed per DAO
+- Output is a clean DataFrame: one row per DAO
+
+Save to:
+data/processed/dao_feature_table.parquet
+
+========================
+STEP 4 — DATA CLEANING & TRANSFORMATION
+========================
+Before clustering:
+
+- Handle missing values
+- Detect and cap extreme outliers
+- Apply log transformation to heavy-tailed variables
+- Standardize features (z-score)
+
+Also:
+- Identify “scale-driven” features (e.g. size metrics)
+- Keep a clean numeric feature matrix for clustering
+
+========================
+STEP 5 — FEATURE SCREENING
+========================
+Perform feature selection using:
+
+1. Correlation matrix
+- Identify highly correlated features
+- Remove redundant ones
+
+2. Conceptual grouping
+- Ensure features cover different dimensions:
+    - size
+    - activity
+    - behavior
+    - concentration
+
+3. Interpretability
+- Prefer features that are meaningful for governance analysis
+
+Output:
+- A final selected feature set for clustering
+
+========================
+STEP 6 — CLUSTERING
+========================
+Apply multiple clustering methods:
+
+- KMeans (with different K)
+- Hierarchical clustering
+- Optional: GMM or HDBSCAN
+
+For each method:
+- Compute evaluation metrics:
+    - silhouette score
+    - Davies-Bouldin index
+
+- Visualize clusters (PCA or UMAP)
+
+Save results to:
+outputs/cluster_results/
+
+========================
+STEP 7 — OUTPUTS
+========================
+Generate:
+
+- Clean DAO feature table
+- Correlation heatmap
+- Distribution plots
+- Cluster assignments per DAO
+- Cluster summary statistics
+
+========================
+CODING REQUIREMENTS
+========================
+- Use clean, readable, modular Python
+- Use pandas or polars for data processing
+- Use sklearn for clustering
+- Add comments explaining each step
+- Ensure code can scale to ~400+ DAOs and large datasets
+
+========================
+IMPORTANT
+========================
+Do NOT skip steps.
+Do NOT jump directly to clustering.
+Build a proper pipeline: metrics → cleaning → feature selection → clustering.
+
+Start by implementing STEP 1–3 first, then proceed step by step.

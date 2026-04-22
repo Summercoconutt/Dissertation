@@ -1,0 +1,236 @@
+I want you to build a complete, research-grade DAO clustering pipeline in Python for my dissertation.
+
+Context:
+- I already completed feature screening and now have a reduced feature set for around 440 DAOs.
+- Each row is one DAO (one Snapshot space).
+- The goal is to cluster DAOs into interpretable governance / behavioural regimes.
+- The dissertation mainly focuses on voter behaviour, so the clustering should emphasize behavioural environment, while still retaining governance structure, participation, and scale information.
+
+Input file:
+- dao_feature_table.xlsx
+
+Identifier column:
+- space
+
+Use these final selected features for clustering:
+- log_n_unique_voters
+- mean_robust_participation_vp
+- std_robust_participation_vp
+- gini_voting_power
+- whale_ratio_top1pct
+- proposal_frequency_per_30d
+- repeat_voter_rate
+- z_rep_pct_for_votes
+- z_rep_pct_against_votes
+- z_rep_pct_abstain_votes
+- z_rep_choice_entropy
+- z_rep_pct_aligned_with_majority
+
+I want a full clustering pipeline with the following steps.
+
+==================================================
+STEP 1 — LOAD AND PREPARE DATA
+==================================================
+1. Load dao_feature_table.xlsx with pandas.
+2. Keep the "space" column as identifier.
+3. Select only the chosen clustering features listed above.
+4. Check whether all required columns exist. If any are missing, print a warning and use only available ones.
+5. Handle missing values:
+   - print missing count per selected feature
+   - if missing values are few, fill with median
+6. Build:
+   - df_meta: contains space
+   - df_features: contains selected clustering features
+
+==================================================
+STEP 2 — PREPROCESSING
+==================================================
+1. Apply RobustScaler to the selected features.
+2. Save the scaled feature matrix to CSV for inspection.
+3. Print summary statistics before and after scaling.
+
+==================================================
+STEP 3 — PRIMARY CLUSTERING: KMEANS
+==================================================
+1. Run KMeans for k = 2 to 6.
+2. For each k, compute:
+   - inertia
+   - silhouette score
+   - Calinski-Harabasz score
+   - Davies-Bouldin score
+3. Save the evaluation results to CSV.
+4. Plot and save:
+   - elbow curve (inertia vs k)
+   - silhouette score vs k
+   - Calinski-Harabasz vs k
+   - Davies-Bouldin vs k
+
+Important:
+- use random_state for reproducibility
+- use n_init properly
+- make code clean and reproducible
+
+==================================================
+STEP 4 — CHOOSE BEST K
+==================================================
+1. Automatically recommend the best k using a balanced rule:
+   - high silhouette
+   - high Calinski-Harabasz
+   - low Davies-Bouldin
+   - avoid overfragmentation
+2. Print the recommended k clearly.
+3. Also allow manual override in the code with a variable like:
+   BEST_K = recommended_k
+
+==================================================
+STEP 5 — FINAL KMEANS MODEL
+==================================================
+1. Fit final KMeans using BEST_K.
+2. Assign cluster labels to each DAO.
+3. Create output table with:
+   - space
+   - cluster
+   - all selected original features
+4. Save to CSV.
+
+==================================================
+STEP 6 — CLUSTER PROFILING
+==================================================
+This is very important.
+
+1. Compute per-cluster summary statistics:
+   - mean
+   - median
+   - standard deviation
+   - cluster size
+2. Save cluster profile tables to CSV.
+3. Also compute standardized cluster profiles:
+   - compare each cluster mean against overall mean
+   - optionally z-score the cluster profile for easier interpretation
+4. Save both raw and standardized cluster profiles.
+
+==================================================
+STEP 7 — INTERPRETABILITY OUTPUTS
+==================================================
+I want visual outputs that help interpret the clusters.
+
+Please create and save:
+1. Heatmap of cluster mean profiles
+2. Standardized heatmap of cluster profiles
+3. Boxplots for each selected feature grouped by cluster
+4. Cluster size bar chart
+
+If practical, also add:
+5. Radar chart or grouped bar chart for cluster centers
+
+Make the plots readable and dissertation-friendly.
+
+==================================================
+STEP 8 — DIMENSION REDUCTION FOR VISUALIZATION
+==================================================
+1. Run PCA to 2 components for visualization only.
+2. Plot DAOs in 2D PCA space colored by cluster.
+3. Save the PCA scatter plot.
+4. Print explained variance ratio.
+
+Optional:
+- if easy, also run UMAP or t-SNE for visualization only
+- but PCA is required
+
+==================================================
+STEP 9 — ROBUSTNESS CHECK: HIERARCHICAL CLUSTERING
+==================================================
+Use hierarchical clustering as a validation method.
+
+1. Run hierarchical clustering on the same scaled feature set.
+2. Use Ward linkage.
+3. Plot and save dendrogram.
+4. Cut the dendrogram at BEST_K clusters.
+5. Compare hierarchical cluster labels to KMeans labels.
+6. Compute Adjusted Rand Index (ARI) between KMeans and hierarchical clustering.
+7. Save comparison table.
+
+Goal:
+- use hierarchical clustering as a robustness check, not the primary method
+
+==================================================
+STEP 10 — OPTIONAL ROBUSTNESS CHECK: GMM
+==================================================
+If feasible, also test Gaussian Mixture Models for the same range of k = 2 to 6.
+For each k compute:
+- BIC
+- AIC
+
+Plot and save BIC and AIC curves.
+Do not make GMM the primary method unless results strongly suggest it.
+
+==================================================
+STEP 11 — AUTOMATED CLUSTER INTERPRETATION DRAFT
+==================================================
+Based on cluster means, generate a simple text summary in the console and save to TXT:
+- for each cluster, describe whether it is high/low in:
+  - participation
+  - inequality
+  - whale concentration
+  - proposal activity
+  - repeat voting
+  - behavioural support / against / abstain tendencies
+  - entropy
+  - alignment with majority
+
+The interpretation does not need to be perfect, but should give a first-pass profile such as:
+- “Cluster 0: high participation, low concentration, high majority alignment”
+- “Cluster 1: whale-dominated, lower participation, more oppositional voting pattern”
+
+==================================================
+STEP 12 — OUTPUT FOLDER STRUCTURE
+==================================================
+Save everything under:
+./outputs/clustering_pipeline/
+
+Suggested files:
+- scaled_features.csv
+- clustering_evaluation_k2_to_k6.csv
+- elbow_curve.png
+- silhouette_curve.png
+- calinski_harabasz_curve.png
+- davies_bouldin_curve.png
+- final_cluster_assignments.csv
+- cluster_profile_mean.csv
+- cluster_profile_median.csv
+- cluster_profile_std.csv
+- cluster_profile_standardized.csv
+- cluster_profile_heatmap.png
+- cluster_profile_heatmap_standardized.png
+- cluster_sizes.png
+- pca_clusters.png
+- hierarchical_dendrogram.png
+- hierarchical_vs_kmeans_comparison.csv
+- cluster_interpretation.txt
+- gmm_model_selection.csv
+- gmm_bic_aic.png
+
+==================================================
+STEP 13 — CODE QUALITY REQUIREMENTS
+==================================================
+Requirements:
+- use pandas, numpy, matplotlib, seaborn, pathlib, sklearn, scipy
+- clean modular code with helper functions
+- comments explaining the logic
+- reproducible random_state
+- graceful handling of missing columns
+- informative progress printing
+- everything runnable from start to finish in one script
+
+==================================================
+STEP 14 — RESEARCH-STYLE CONSOLE SUMMARY
+==================================================
+At the end, print a clear summary:
+- number of DAOs used
+- number of features used
+- recommended best k
+- KMeans evaluation metrics for each k
+- ARI between KMeans and hierarchical clustering
+- brief statement on whether clustering appears reasonably stable and interpretable
+
+Please write the full Python script, not pseudocode.

@@ -1,0 +1,32 @@
+{
+  "space": "aavedao.eth",
+  "proposal_id": "0xfcd429c8fcb5fc44a0bea9bf078726ef48b1c76ca1039a8c6c9dff23f4547e30",
+  "snapshot_block": 24439725,
+  "n_candidates_scored": 96,
+  "n_voters": 96,
+  "n_layer1_holders": 0,
+  "n_layer2_vp_holders": 96,
+  "score_api_error": null,
+  "local_score_used": true,
+  "local_score_warnings": [],
+  "turnout_unweighted_layer1": null,
+  "turnout_unweighted_layer2": 1.0,
+  "turnout_weighted_vp": 1.0,
+  "voters_vp_sum": 526903.4108834601,
+  "eligible_vp_sum": 526903.4108834601,
+  "tau_balance_token": 0.0,
+  "tau_vp_token": 0.0,
+  "token_contract": "0xc0259c59d9f980e3b5e2574cd78c9a9bc6a8e3fc",
+  "token_start_block": null,
+  "token_decimals": 18,
+  "flags": {
+    "has_erc20_balance": false,
+    "has_erc20_votes": false,
+    "has_delegation": false,
+    "has_lp_or_staking": false,
+    "has_multi_asset": true
+  },
+  "vp_top1_share": 0.5984872283920226,
+  "vp_top10_share": 0.996830526834079,
+  "vp_top100_share": 1.0
+}

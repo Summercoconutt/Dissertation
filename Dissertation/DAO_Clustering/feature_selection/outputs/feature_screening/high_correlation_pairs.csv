@@ -1,0 +1,6 @@
+feature_a,feature_b,correlation
+avg_voters_per_proposal,median_voters_per_proposal,0.8826000519299849
+voter_turnout_proxy,mean_participation_count,1.0
+log_n_unique_voters,log_total_votes,0.9199642323798722
+log_n_unique_voters,log_n_voters_in_dao,1.0
+log_total_votes,log_n_voters_in_dao,0.9199642323798722
