@@ -48,6 +48,7 @@ def build_windows(
             hist = list(range(t - window_size + 1, t))
             cur = t
             indices = hist + [cur]
+            malformed_window = False
 
             texts: List[str] = []
             feats: List[np.ndarray] = []
@@ -65,11 +66,21 @@ def build_windows(
                         vec.append(float(val))
                     else:
                         try:
-                            vec.append(float(val))
+                            fval = float(val)
+                            if not np.isfinite(fval):
+                                fval = 0.0
+                            vec.append(fval)
                         except Exception:
                             vec.append(0.0)
                 vec.extend(_time_feats(pd.to_datetime(row["vote_ts"], utc=True, errors="coerce")))
-                feats.append(np.asarray(vec, dtype=np.float32))
+                feat_arr = np.asarray(vec, dtype=np.float32)
+                if not np.isfinite(feat_arr).all():
+                    malformed_window = True
+                    break
+                feats.append(feat_arr)
+
+            if malformed_window:
+                continue
 
             target = int(g.loc[cur, "label_id"])
             out.append(

@@ -20,9 +20,32 @@ def normalise_columns(df: pd.DataFrame) -> pd.DataFrame:
     out["vote_ts"] = pd.to_datetime(out["vote_ts"], utc=True, errors="coerce")
     out["label_id"] = pd.to_numeric(out["label_id"], errors="coerce").astype("Int64")
 
+    # Robustly sanitize heavy-tailed numeric features while preserving outlier ordering.
     for c in ["voting_power", "vp_share"]:
-        out[c] = pd.to_numeric(out.get(c, np.nan), errors="coerce")
-        out[c] = out[c].fillna(out[c].median())
+        series = pd.to_numeric(out.get(c, np.nan), errors="coerce")
+        series = series.where(np.isfinite(series), np.nan)
+        med = series.median()
+        if pd.isna(med):
+            med = 0.0
+        series = series.fillna(float(med))
+
+        if c == "voting_power":
+            # Preserve all outliers via monotonic compression instead of clipping.
+            series = np.sign(series) * np.log1p(np.abs(series))
+            med_t = float(np.median(series))
+            q1, q3 = np.quantile(series, [0.25, 0.75])
+            iqr = float(q3 - q1)
+            if not np.isfinite(iqr) or iqr <= 0.0:
+                iqr = 1.0
+            series = (series - med_t) / iqr
+        else:
+            med_t = float(np.median(series))
+            q1, q3 = np.quantile(series, [0.25, 0.75])
+            iqr = float(q3 - q1)
+            if not np.isfinite(iqr) or iqr <= 0.0:
+                iqr = 1.0
+            series = (series - med_t) / iqr
+        out[c] = series.astype(np.float32)
 
     out["is_whale"] = out.get("is_whale", False).astype(bool)
     out["aligned_with_majority"] = out.get("aligned_with_majority", False).astype(bool)

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 import numpy as np
 import torch
@@ -38,6 +39,12 @@ def main() -> None:
     ap.add_argument("--epochs", type=int, default=4)
     ap.add_argument("--lr", type=float, default=2e-5)
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument(
+        "--max_skipped_batches",
+        type=int,
+        default=200,
+        help="Fail fast if too many batches are skipped due to non-finite values.",
+    )
     ap.add_argument(
         "--max_train_windows",
         type=int,
@@ -95,24 +102,55 @@ def main() -> None:
 
     best_f1 = -1.0
     best_state = None
+    total_skipped_batches = 0
     for epoch in range(args.epochs):
         model.train()
         tr_true, tr_pred, tr_loss = [], [], 0.0
+        epoch_skipped_batches = 0
         for batch in tqdm(train_loader, desc=f"train {epoch+1}/{args.epochs}"):
             for k in batch:
                 batch[k] = batch[k].to(device)
+
+            if not torch.isfinite(batch["num_feats"]).all():
+                epoch_skipped_batches += 1
+                total_skipped_batches += 1
+                optimizer.zero_grad(set_to_none=True)
+                continue
+
             out = model(batch)
+            if not torch.isfinite(out["logits"]).all():
+                epoch_skipped_batches += 1
+                total_skipped_batches += 1
+                optimizer.zero_grad(set_to_none=True)
+                continue
+
             loss = model.loss_fn(out["logits"], batch["labels"], class_weights=class_weights)
+            loss_val = float(loss.item())
+            if math.isnan(loss_val) or math.isinf(loss_val):
+                epoch_skipped_batches += 1
+                total_skipped_batches += 1
+                optimizer.zero_grad(set_to_none=True)
+                continue
+
             optimizer.zero_grad()
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
             scheduler.step()
-            tr_loss += float(loss.item())
+            tr_loss += loss_val
             tr_true.extend(batch["labels"].detach().cpu().numpy().tolist())
             tr_pred.extend(out["logits"].argmax(dim=-1).detach().cpu().numpy().tolist())
 
-        train_m = macro_prf(tr_true, tr_pred)
+        if total_skipped_batches > args.max_skipped_batches:
+            raise RuntimeError(
+                f"Skipped {total_skipped_batches} batches due to non-finite values "
+                f"(max allowed: {args.max_skipped_batches})."
+            )
+
+        if tr_true:
+            train_m = macro_prf(tr_true, tr_pred)
+        else:
+            train_m = {"precision": 0.0, "recall": 0.0, "f1": 0.0, "accuracy": 0.0}
 
         model.eval()
         va_true, va_pred = [], []
@@ -126,7 +164,8 @@ def main() -> None:
         valid_m = macro_prf(va_true, va_pred)
         print(
             f"epoch={epoch+1} loss={tr_loss/max(len(train_loader),1):.4f} "
-            f"train_f1={train_m['f1']:.4f} valid_f1={valid_m['f1']:.4f}"
+            f"train_f1={train_m['f1']:.4f} valid_f1={valid_m['f1']:.4f} "
+            f"skipped_batches={epoch_skipped_batches}"
         )
 
         if valid_m["f1"] > best_f1:
